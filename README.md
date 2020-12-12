@@ -14,7 +14,7 @@ It will:
 Add this to your terraform file.
 
 ```tf
-module "fargate-container" {
+module "fargate_container" {
   source = "github.com/kaos-terraform/fargate"
 
   az_count = 2
@@ -29,9 +29,9 @@ module "fargate-container" {
   service = "my-service"
 }
 
-# output the URL to access the lamba via the gateway
+# output the URL to access the server
 output "base_url" {
-  value = module.fargate-container.alb_hostname
+  value = module.fargate_container.base_url
 }
 ```
 

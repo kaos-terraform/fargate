@@ -25,7 +25,7 @@ terraform {
 // Reference: https://github.com/Oxalide/terraform-fargate-example
 
 resource "aws_alb" "main" {
-  name            = "${var.domain}.${var.service}.${var.environment}-alb"
+  name            = "${var.domain}.${var.service}.${var.environment}_alb"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.lb.id]
 
@@ -37,7 +37,7 @@ resource "aws_alb" "main" {
 }
 
 resource "aws_alb_target_group" "app" {
-  name        = "${var.domain}.${var.service}.${var.environment}-alb-target-group"
+  name        = "${var.domain}.${var.service}.${var.environment}_alb_target_group"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -71,7 +71,7 @@ resource "aws_alb_listener" "front_end" {
 // Reference: https://github.com/Oxalide/terraform-fargate-example
 
 resource "aws_ecs_cluster" "main" {
-  name = "${var.domain}.${var.service}.${var.environment}-ecs-cluster"
+  name = "${var.domain}.${var.service}.${var.environment}_ecs_cluster"
 
   tags = {
     Domain      = var.domain
@@ -81,7 +81,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "${var.domain}.${var.service}.${var.environment}-task-def"
+  family                   = "${var.domain}.${var.service}.${var.environment}_task_def"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.fargate_cpu
@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "app" {
     "cpu": ${var.fargate_cpu},
     "image": "${var.app_image}",
     "memory": ${var.fargate_memory},
-    "name": "${var.domain}.${var.service}.${var.environment}-ecs-task",
+    "name": "${var.domain}.${var.service}.${var.environment}_ecs_task",
     "networkMode": "awsvpc",
     "portMappings": [
       {
@@ -113,7 +113,7 @@ TASK_DEFINITION
 }
 
 resource "aws_ecs_service" "main" {
-  name            = "${var.domain}.${var.service}.${var.environment}-ecs-service"
+  name            = "${var.domain}.${var.service}.${var.environment}_ecs_service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.app_count
@@ -126,7 +126,7 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name   = "${var.domain}.${var.service}.${var.environment}-ecs-lb"
+    container_name   = "${var.domain}.${var.service}.${var.environment}_ecs_lb"
     container_port   = var.app_port
   }
 
@@ -263,7 +263,7 @@ resource "aws_route_table_association" "private" {
 // ALB (application load balancer) security group
 // This is the group you need to edit if you want to restrict access to your application
 resource "aws_security_group" "lb" {
-  name        = "${var.domain}.${var.service}.${var.environment}-sg-lb"
+  name        = "${var.domain}.${var.service}.${var.environment}_sg_lb"
   description = "Controls access to the ${var.domain}.${var.service} ALB"
   vpc_id      = aws_vpc.main.id
 
@@ -290,7 +290,7 @@ resource "aws_security_group" "lb" {
 
 // Traffic to the ECS Cluster should only come from the ALB
 resource "aws_security_group" "ecs_tasks" {
-  name        = "${var.domain}.${var.service}.${var.environment}-sg-tasks"
+  name        = "${var.domain}.${var.service}.${var.environment}_sg_tasks"
   description = "Allow inbound access from the ALB only"
   vpc_id      = aws_vpc.main.id
 
